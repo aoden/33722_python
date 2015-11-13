@@ -1,0 +1,130 @@
+{
+    "db": {
+
+		"host": "188.121.44.179",
+        "username": "LSpython",
+        "password": "Lstemp#",
+        "database": "LSpython",
+        "port": 3306,		
+				
+		"query": "select q.id as postid,quote as maintext,author as footertext from quotes q inner join authors a where q.author_id=a.id ORDER BY postid LIMIT 10",
+        "update": "update quotes set imagesCreated=1 where ID="
+    },
+    "output_directory": "output",
+    "fonts_directory": "fonts/",
+    "filename": "%maintext%-%footertext%-%postid%.png",
+	"filename": "%postid%.png",
+    "styles": [
+ 	{
+            "img_width": 800,
+            "img_height": 600,
+            "case": "upper",
+            "font1": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#ffffff"
+            },
+            "font2": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#ffffff"
+            },
+            "fontfooter": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#FF3366"
+            },
+	    "background-color": "#1d1d1d",
+            "folder": "q1",
+            "output_format": "jpg",
+            "alignment": "center",
+            "top-margin": 0.1,
+            "down-margin": 0.1,
+            "left-margin": 0.1,
+            "right-margin": 0.1,
+            "line-spacing": 0.5,
+            "watermark": {
+                "file": "misc/115_white.png",
+                "width": 115,
+                "height": 20,
+                "offset_x": 665,
+                "offset_y": 560
+            }
+        },
+
+
+
+		
+		
+ 	{
+            "img_width": 1600,
+            "img_height": 900,
+
+            "font1": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#ffffff"
+            },
+            "font2": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#ffffff"
+            },
+            "fontfooter": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#FF3366"
+            },
+	    	"background-color": "#1d1d1d",
+			"background-image": "backgrounds/background1.jpg",
+            "folder": "q2",
+            "output_format": "jpg",
+            "alignment": "center",
+            "top-margin": 0.1,
+            "down-margin": 0.1,
+            "left-margin": 0.4,
+            "right-margin": 0.1,
+            "line-spacing": 0.5,
+            "watermark": {
+                "file": "misc/115_white.png",
+                "width": 115,
+                "height": 20,
+                "offset_x": 1445,
+                "offset_y": 860
+            }
+        },
+		
+		
+
+ 	{
+            "img_width": 700,
+            "img_height": 800,
+            "font1": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#ffffff"
+            },
+            "font2": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#ffffff"
+            },
+            "fontfooter": {
+                "font-family": "LUZRO.TTF",
+                "font-color": "#95df7f"
+            },
+	    	"background-color": "#4f9b38",
+            "folder": "q3",
+            "output_format": "jpg",
+            "alignment": "center",
+            "top-margin": 0.1,
+            "down-margin": 0.1,
+            "left-margin": 0.1,
+            "right-margin": 0.1,
+            "line-spacing": 0.4,
+            "watermark": {
+                "file": "misc/115_grey.png",
+                "width": 115,
+                "height": 20,
+                "offset_x": 540,
+                "offset_y": 760
+            }
+        }
+		
+		
+
+
+    ]
+}
