@@ -1,8 +1,4 @@
-from PIL import Image as Image
-from PIL import ImageDraw as ImageDraw
-from PIL import ImageFont as ImageFont
 import json
-import MySQLdb
 import textwrap
 import string
 import os
@@ -10,6 +6,11 @@ import threading
 import Queue
 import HTMLParser
 import re
+
+from PIL import Image as Image
+from PIL import ImageDraw as ImageDraw
+from PIL import ImageFont as ImageFont
+import MySQLdb
 
 
 class Processor(threading.Thread):
@@ -183,7 +184,7 @@ class QuoteMaker:
             style_dic["color3"] = style.get("fontfooter", style["font1"])["font-color"]
 
             if "left-margin" in style:
-                style_dic["left-margin"] = style["left-margin"] * style["img_width"] / 5
+                style_dic["left-margin"] = style["left-margin"] * style["img_width"]
             else:
                 style_dic["left-margin"] = 25.0
 
@@ -293,9 +294,12 @@ class QuoteMaker:
                 lines = textwrap.wrap(maintext, width=int(
                     (width - (style["left-margin"] + style["right-margin"])) / font["width"]))
                 if index < 6:
-                    font_3 = style["fontfooter"][index + 3]
+                    if index + 5 <= 7:
+                        font_3 = style["fontfooter"][index + 5]
+                    else:
+                        font_3 = style["fontfooter"][7]
                 else:
-                    font_3 = style["fontfooter"][-1]
+                    font_3 = style["fontfooter"][7]
                 guess_h = (font["margin"] * len(lines)) + font_3["margin"]
                 if "top-margin" in style and "down-margin" in style:
                     if guess_h < height - (style["top-margin"] + style["down-margin"]):
@@ -341,15 +345,20 @@ class QuoteMaker:
                 pos[1] += margin
 
             # Writing Author
-            if style["alignment"] == "center":
+            if font_3["font"].getsize(footertext)[0] <= (width - style["left-margin"] - style["right-margin"]):
                 line_width = font_3["font"].getsize(footertext)[0]
-                pos[0] = (width - line_width) / 2
-            elif style["alignment"] == "right":
-                pos[0] = width - font_3["font"].getsize(footertext)[0] + style["right-margin"] / 150 * style[
-                    "img_width"]
             else:
-                pos[0] = style["left-margin"]
-            d.text(pos, footertext, fill=style["color3"], font=font_3["font"])
+                line_width = int((width - (style["left-margin"] + style["right-margin"])) / font_3["width"])
+            for line in textwrap.wrap(footertext, line_width):
+                if style["alignment"] == "center":
+                    # line_width = font_3["font"].getsize(footertext)[0]
+                    pos[0] = (width - line_width) / 5
+                elif style["alignment"] == "right":
+                    pos[0] = (width - line_width) / 3
+                else:
+                    pos[0] = (width - line_width) / 8
+                d.text(pos, line, fill=style["color3"], font=font_3["font"])
+                pos[1] += (font_3["font"].getsize(line)[1] + font_3["font"].getsize(line)[1] / 6)
             # img.show()
             Writer.input_queue.put((img, name))
         Updater.input_queue.put(pid)
