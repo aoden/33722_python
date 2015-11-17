@@ -16,8 +16,8 @@
 	"filename": "%postid%.png",
     "styles": [
  	{
-            "img_width": 800,
-            "img_height": 600,
+            "img_width": 900,
+            "img_height": 700,
             "case": "upper",
             "font1": {
                 "font-family": "LUZRO.TTF",
@@ -44,15 +44,11 @@
                 "file": "misc/115_white.png",
                 "width": 115,
                 "height": 20,
-                "offset_x": 665,
-                "offset_y": 560
+                "offset_x": 765,
+                "offset_y": 660
             }
         },
 
-
-
-		
-		
  	{
             "img_width": 1600,
             "img_height": 900,
@@ -73,7 +69,7 @@
 			"background-image": "backgrounds/background1.jpg",
             "folder": "q2",
             "output_format": "jpg",
-            "alignment": "left",
+            "alignment": "center",
             "top-margin": 0.1,
             "down-margin": 0.1,
             "left-margin": 0.1,
@@ -108,7 +104,7 @@
 	    	"background-color": "#4f9b38",
             "folder": "q3",
             "output_format": "jpg",
-            "alignment": "right",
+            "alignment": "center",
             "top-margin": 0.1,
             "down-margin": 0.1,
             "left-margin": 0.1,

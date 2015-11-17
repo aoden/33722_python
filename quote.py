@@ -108,7 +108,7 @@ class QuoteMaker:
             pass
         print "- Loading styles"
         self.style = []
-        sizes = range(60, 12, -6)
+        sizes = [14, 16, 18, 20, 33, 34, 36]
         for style in self.settings["styles"]:
             style_dic = {"font_1": [],
                          "font_2": [],
@@ -291,33 +291,49 @@ class QuoteMaker:
             d = ImageDraw.Draw(img)
             # Choosing font size
             for index, font in enumerate(style["font_1"]):
+                self.old_h = 0.0
                 lines = textwrap.wrap(maintext, width=int(
                     (width - (style["left-margin"] + style["right-margin"])) / font["width"]))
                 if index < 6:
-                    if index + 5 <= 7:
-                        font_3 = style["fontfooter"][index + 5]
+                    if index - 3 >= 0:
+                        font_3 = style["fontfooter"][index - 3]
                     else:
-                        font_3 = style["fontfooter"][7]
+                        font_3 = style["fontfooter"][0]
                 else:
-                    font_3 = style["fontfooter"][7]
-                guess_h = (font["margin"] * len(lines)) + font_3["margin"]
+                    font_3 = style["fontfooter"][0]
+
+                if font_3["font"].getsize(footertext)[0] <= (width - style["left-margin"] - style["right-margin"]):
+                    line_width = font_3["font"].getsize(footertext)[0]
+                else:
+                    line_width = int((width - (style["left-margin"] + style["right-margin"])) / font_3["width"])
+
+                guess_h = (font["margin"] * len(lines)) + font_3["margin"] * len(textwrap.wrap(footertext, line_width))
+                if index == 0:
+                    print "begin"
+                    self.old_h = guess_h
                 if "top-margin" in style and "down-margin" in style:
                     if guess_h < height - (style["top-margin"] + style["down-margin"]):
-                        font_1 = font
-                        margin = font["margin"]
-                        font_2 = style["font_2"][index]
-                        break
+                        if self.old_h < guess_h:
+                            print "guest_h: " + str(guess_h) + ", " "height: " + str(
+                                height - (style["top-margin"] + style["down-margin"]))
+                            font_1 = font
+                            margin = font["margin"]
+                            font_2 = style["font_2"][index]
+                            self.old_h = guess_h
                 else:
                     if guess_h < height - (style["left-margin"] + style["right-margin"]):
-                        font_1 = font
-                        margin = font["margin"]
-                        font_2 = style["font_2"][index]
-                        break
+                        if self.old_h < guess_h:
+                            font_1 = font
+                            margin = font["margin"]
+                            font_2 = style["font_2"][index]
+                            self.old_h = guess_h
+            print "\n"
             # Writing quote
             if "top-margin" not in style:
-                pos = [style["left-margin"], (height - guess_h) / 2]
+                pos = [style["left-margin"], (height - self.old_h + style["down-margin"]) / 2]
             else:
-                pos = [style["left-margin"], style["top-margin"]]
+                pos = [style["left-margin"], (height - self.old_h - style["top-margin"] + style["down-margin"]) / 2]
+
             for line in lines:
                 if style["alignment"] == "center":
                     line_width = font_1["font"].getsize(line)[0]
