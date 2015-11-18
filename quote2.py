@@ -64,8 +64,8 @@ class QuoteMaker:
                           mask=water_mark)
                 draw = ImageDraw.Draw(img)
 
-                max_font_size = self.settings["max_font_size"]
-                min_font_size = self.settings["min_font_size"]
+                max_font_size = style["max_font_size"]
+                min_font_size = style["min_font_size"]
                 font_1 = self.settings["fonts_directory"] + style["font1"]["font-family"]
                 font_2 = self.settings["fonts_directory"] + style["font2"]["font-family"]
                 font_foot = self.settings["fonts_directory"] + style.get("fontfooter", style["font1"])["font-family"]
@@ -112,14 +112,14 @@ class QuoteMaker:
                     "margin": h + style.get("line-spacing", 1.0) * h
                 }
                 box_w = int(style["img_width"] - left_margin - right_margin)
-                lines = textwrap.wrap(maintext, width=box_w / font["width"])
-                foot_lines = textwrap.wrap(footertext, width=box_w / font_f["width"])
+                lines = self.wrap_text(maintext, box_w, f)
+                foot_lines = self.wrap_text(maintext, box_w, foot_f)
 
                 # calculate height of main and footer text
                 footer_h = 0.0
                 main_h = 0.0
                 for line in foot_lines:
-                    footer_h += font_f["height"]
+                    footer_h += font_f["margin"]
                 for line in lines:
                     main_h += font["margin"]
 
@@ -156,6 +156,30 @@ class QuoteMaker:
 
     def count_letters(self, word):
         return len(word) - word.count(' ')
+
+    def wrap_text(self, text, width, font):
+        text_lines = []
+        text_line = []
+        text = text.replace('\n', ' [br] ')
+        words = text.split()
+        font_size = font.getsize(text)
+
+        for word in words:
+            if word == '[br]':
+                text_lines.append(' '.join(text_line))
+                text_line = []
+                continue
+            text_line.append(word)
+            w, h = font.getsize(' '.join(text_line))
+            if w > width:
+                text_line.pop()
+                text_lines.append(' '.join(text_line))
+                text_line = [word]
+
+        if len(text_line) > 0:
+            text_lines.append(' '.join(text_line))
+
+        return text_lines
 
 
 def main():

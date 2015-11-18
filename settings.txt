@@ -14,13 +14,13 @@
     "fonts_directory": "fonts/",
     "filename": "%maintext%-%footertext%-%postid%.png",
 	"filename": "%postid%.png",
-	"max_font_size": 30,
-	"min_font_size": 10,
     "styles": [
  	{
             "img_width": 900,
             "img_height": 700,
             "case": "upper",
+            "max_font_size": 30,
+            "min_font_size": 17,
             "font1": {
                 "font-family": "LUZRO.TTF",
                 "font-color": "#ffffff"
@@ -54,6 +54,8 @@
  	{
             "img_width": 1600,
             "img_height": 900,
+            "max_font_size": 30,
+            "min_font_size": 17,
 
             "font1": {
                 "font-family": "LUZRO.TTF",
@@ -91,6 +93,8 @@
  	{
             "img_width": 700,
             "img_height": 800,
+            "max_font_size": 30,
+            "min_font_size": 15,
             "font1": {
                 "font-family": "LUZRO.TTF",
                 "font-color": "#ffffff"
