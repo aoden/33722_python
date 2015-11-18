@@ -71,12 +71,12 @@ class QuoteMaker:
                 font_foot = self.settings["fonts_directory"] + style.get("fontfooter", style["font1"])["font-family"]
 
                 # calculate font size
-                size = max_font_size - (self.count_letters(maintext) / 100)
+                size = max_font_size - (self.count_letters(maintext) / 50)
                 if size < min_font_size:
                     size = min_font_size
 
                 f = ImageFont.truetype(font_1, size)
-                foot_f = ImageFont.truetype(font_1, int(size * 0.5))
+                foot_f = ImageFont.truetype(font_foot, int(size * 0.5))
                 left_margin = style["left-margin"]
                 right_margin = style["right-margin"]
                 top_margin = style["top-margin"]
@@ -104,14 +104,53 @@ class QuoteMaker:
                     "height": h,
                     "margin": h + style.get("line-spacing", 1.0) * h
                 }
+                h = foot_f.getsize("A")[1]
+                font_f = {
+                    "font": foot_f,
+                    "width": sum([foot_f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
+                    "height": h,
+                    "margin": h + style.get("line-spacing", 1.0) * h
+                }
                 box_w = int(style["img_width"] - left_margin - right_margin)
                 lines = textwrap.wrap(maintext, width=box_w / font["width"])
+                foot_lines = textwrap.wrap(footertext, width=box_w / font_f["width"])
+
+                # calculate height of main and footer text
+                footer_h = 0.0
+                main_h = 0.0
+                for line in foot_lines:
+                    footer_h += font_f["height"]
+                for line in lines:
+                    main_h += font["margin"]
+
+                box_h = main_h + footer_h
+
+                print(len(lines))
 
                 pad = font["height"]
-                current_h = int(style["img_height"] - top_margin - down_margin) / 2
+                current_h = int(style["img_height"] - top_margin - down_margin - box_h) / 2
                 for line in lines:
                     w, h = f.getsize(line)
-                    draw.text(((box_w - w), current_h), line, font=f, fill=style["font1"]["font-color"])
+                    if style["alignment"] == "center":
+                        draw.text(((width - w) / 2, current_h), line, font=f, fill=style["font1"]["font-color"])
+                    elif style["alignment"] == "left":
+                        draw.text((left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
+                    else:
+                        draw.text((width - w - left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
+                    current_h += h + pad
+                    img.save(self.settings["output_directory"] + "/" + name)
+
+                pad = font_f["height"]
+                for line in foot_lines:
+                    w, h = foot_f.getsize(line)
+                    if style["alignment"] == "center":
+                        draw.text(((width - w) / 2, current_h), line, font=foot_f,
+                                  fill=style["fontfooter"]["font-color"])
+                    elif style["alignment"] == "left":
+                        draw.text((left_margin, current_h), line, font=foot_f, fill=style["fontfooter"]["font-color"])
+                    else:
+                        draw.text((width - w - left_margin, current_h), line, font=foot_f,
+                                  fill=style["fontfooter"]["font-color"])
                     current_h += h + pad
                     img.save(self.settings["output_directory"] + "/" + name)
 
