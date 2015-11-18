@@ -1,6 +1,6 @@
 import json
 import textwrap
-import string
+
 import os
 import threading
 import Queue
@@ -108,6 +108,8 @@ class QuoteMaker:
             pass
         print "- Loading styles"
         self.style = []
+        max_font_size = self.settings["max_font_size"]
+        min_font_size = self.settings["min_font_size"]
         sizes = [14, 16, 18, 20, 33, 34, 36]
         for style in self.settings["styles"]:
             style_dic = {"font_1": [],

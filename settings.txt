@@ -14,6 +14,8 @@
     "fonts_directory": "fonts/",
     "filename": "%maintext%-%footertext%-%postid%.png",
 	"filename": "%postid%.png",
+	"max_font_size": 30,
+	"min_font_size": 10,
     "styles": [
  	{
             "img_width": 900,
