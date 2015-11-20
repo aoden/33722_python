@@ -7,7 +7,7 @@
         "database": "LSpython",
         "port": 3306,		
 				
-		"query": "select q.id as postid,quote as maintext,author as footertext from quotes q inner join authors a where q.author_id=a.id ORDER BY postid LIMIT 10",
+		"query": "select q.id as postid,quote as maintext,author as footertext from quotes q inner join authors a where q.author_id=a.id ORDER BY postid LIMIT 50",
         "update": "update quotes set imagesCreated=1 where ID="
     },
     "output_directory": "output",
@@ -20,7 +20,8 @@
             "img_height": 700,
             "case": "upper",
             "max_font_size": 30,
-            "min_font_size": 17,
+            "min_font_size": 10,
+            "footer_size" : 0.7,
             "font1": {
                 "font-family": "LUZRO.TTF",
                 "font-color": "#ffffff"
@@ -36,7 +37,7 @@
 	    "background-color": "#1d1d1d",
             "folder": "q1",
             "output_format": "jpg",
-            "alignment": "center",
+            "alignment": "right",
             "top-margin": 0.1,
             "down-margin": 0.1,
             "left-margin": 0.1,
@@ -54,9 +55,9 @@
  	{
             "img_width": 1600,
             "img_height": 900,
-            "max_font_size": 30,
+            "max_font_size": 53,
             "min_font_size": 17,
-
+            "footer_size" : 0.7,
             "font1": {
                 "font-family": "LUZRO.TTF",
                 "font-color": "#ffffff"
@@ -78,7 +79,7 @@
             "down-margin": 0.1,
             "left-margin": 0.1,
             "right-margin": 0.1,
-            "line-spacing": 0.4,
+            "line-spacing": 0.1,
             "watermark": {
                 "file": "misc/115_white.png",
                 "width": 115,
@@ -94,7 +95,8 @@
             "img_width": 700,
             "img_height": 800,
             "max_font_size": 30,
-            "min_font_size": 15,
+            "min_font_size": 10,
+            "footer_size" : 0.7,
             "font1": {
                 "font-family": "LUZRO.TTF",
                 "font-color": "#ffffff"
@@ -110,12 +112,12 @@
 	    	"background-color": "#4f9b38",
             "folder": "q3",
             "output_format": "jpg",
-            "alignment": "center",
+            "alignment": "left",
             "top-margin": 0.1,
             "down-margin": 0.1,
             "left-margin": 0.1,
             "right-margin": 0.1,
-            "line-spacing": 0.4,
+            "line-spacing": 0.1,
             "watermark": {
                 "file": "misc/115_grey.png",
                 "width": 115,
