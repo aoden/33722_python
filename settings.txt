@@ -56,7 +56,7 @@
             "img_width": 1600,
             "img_height": 900,
             "max_font_size": 53,
-            "min_font_size": 17,
+            "min_font_size": 10,
             "footer_size" : 0.7,
             "font1": {
                 "font-family": "LUZRO.TTF",

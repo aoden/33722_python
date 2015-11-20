@@ -87,7 +87,16 @@ def do_process(param):
     font_1 = settings["fonts_directory"] + style["font1"]["font-family"]
     font_2 = settings["fonts_directory"] + style["font2"]["font-family"]
     font_foot = settings["fonts_directory"] + style.get("fontfooter", style["font1"])["font-family"]
-
+    # calculate font size
+    size = max_font_size - count_letters(maintext) / 50
+    if size < min_font_size:
+        size = min_font_size
+    f = ImageFont.truetype(font_1, size)
+    foot_f = ImageFont.truetype(font_foot, int(size * style["footer_size"]))
+    left_margin = style["left-margin"]
+    right_margin = style["right-margin"]
+    top_margin = style["top-margin"]
+    down_margin = style["down-margin"]
     # calculate margins
     if "left-margin" in style:
         left_margin = style["left-margin"] * style["img_width"]
@@ -101,56 +110,31 @@ def do_process(param):
         top_margin = style["top-margin"] * style["img_height"]
     if "down-margin" in style:
         down_margin = style["down-margin"] * style["img_height"]
-
-    # calculate font size
-    # size = max_font_size - count_letters(maintext) / 50
-    size = max_font_size
-    max_box_h = (height - top_margin - down_margin)
-    max_box_w = (width - left_margin - right_margin)
-    box_w = 2 * max_box_w
-    box_h = 2 * max_box_h
-    lines = []
-    foot_lines = []
-
-    while box_h > max_box_h \
-            and box_w > max_box_w \
-            and size >= min_font_size:
-        f = ImageFont.truetype(font_1, size)
-        foot_f = ImageFont.truetype(font_foot, int(size * style["footer_size"]))
-        left_margin = style["left-margin"]
-        right_margin = style["right-margin"]
-        top_margin = style["top-margin"]
-        down_margin = style["down-margin"]
-
-        h = f.getsize("A")[1]
-        font = {
-            "font": f,
-            "width": sum([f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
-            "height": h,
-            "margin": h + style.get("line-spacing", 1.0) * h
-        }
-        h = foot_f.getsize("A")[1]
-        font_f = {
-            "font": foot_f,
-            "width": sum([foot_f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
-            "height": h,
-            "margin": h + style.get("line-spacing", 1.0) * h
-        }
-        lines = wrap_text(maintext, max_box_w, f)
-        foot_lines = wrap_text(footertext, max_box_w, foot_f)
-        # calculate height of main and footer text
-        footer_h = 0.0
-        main_h = 0.0
-        for line in foot_lines:
-            footer_h += font_f["margin"]
-        for line in lines:
-            main_h += font["margin"]
-        box_h = main_h + footer_h
-        size -= 1;
-
-    # print str(box_h) + "\n"
-    # print str(max_box_h) + "\n"
-
+    h = f.getsize("A")[1]
+    font = {
+        "font": f,
+        "width": sum([f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
+        "height": h,
+        "margin": h + style.get("line-spacing", 1.0) * h
+    }
+    h = foot_f.getsize("A")[1]
+    font_f = {
+        "font": foot_f,
+        "width": sum([foot_f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
+        "height": h,
+        "margin": h + style.get("line-spacing", 1.0) * h
+    }
+    box_w = int(style["img_width"] - left_margin - right_margin)
+    lines = wrap_text(maintext, box_w, f)
+    foot_lines = wrap_text(footertext, box_w, foot_f)
+    # calculate height of main and footer text
+    footer_h = 0.0
+    main_h = 0.0
+    for line in foot_lines:
+        footer_h += font_f["margin"]
+    for line in lines:
+        main_h += font["margin"]
+    box_h = main_h + footer_h + 2 * font["margin"] + font_f["margin"]
     # print(len(lines))
     pad = font["height"] * style.get("line-spacing", 1.0)
     current_h = int(style["img_height"] + top_margin - down_margin - box_h) / 2
@@ -161,8 +145,7 @@ def do_process(param):
         elif style["alignment"] == "left":
             draw.text((left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         else:
-            draw.text((width - max_box_w - right_margin + (max_box_w - w), current_h), line, font=f,
-                      fill=style["font1"]["font-color"])
+            draw.text((width - w - right_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         current_h += h + pad
         # img.save(settings["output_directory"] + "/" + name)
 
@@ -176,7 +159,7 @@ def do_process(param):
         elif style["alignment"] == "left":
             draw.text((left_margin, current_h), line, font=foot_f, fill=style["fontfooter"]["font-color"])
         else:
-            draw.text((width - max_box_w - right_margin + (max_box_w - w), current_h), line, font=foot_f,
+            draw.text((width - w - right_margin, current_h), line, font=foot_f,
                       fill=style["fontfooter"]["font-color"])
         current_h += h + pad
     img.save(settings["output_directory"] + "/" + name)
