@@ -1,5 +1,5 @@
 import json
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import ThreadPool, Pool
 import re
 import string
 import errno
@@ -35,7 +35,7 @@ class QuoteMaker:
             for row in data:
                 tuple = (row, style, self.settings, self.url_friendly_pattern)
                 params.append(tuple)
-        p = ThreadPool(40)
+        p = Pool(20)
         p.map(do_process, params)
 
 
@@ -87,12 +87,7 @@ def do_process(param):
     font_1 = settings["fonts_directory"] + style["font1"]["font-family"]
     font_2 = settings["fonts_directory"] + style["font2"]["font-family"]
     font_foot = settings["fonts_directory"] + style.get("fontfooter", style["font1"])["font-family"]
-    # calculate font size
-    size = max_font_size - count_letters(maintext) / 50
-    if size < min_font_size:
-        size = min_font_size
-    f = ImageFont.truetype(font_1, size)
-    foot_f = ImageFont.truetype(font_foot, int(size * style["footer_size"]))
+
     left_margin = style["left-margin"]
     right_margin = style["right-margin"]
     top_margin = style["top-margin"]
@@ -110,33 +105,45 @@ def do_process(param):
         top_margin = style["top-margin"] * style["img_height"]
     if "down-margin" in style:
         down_margin = style["down-margin"] * style["img_height"]
-    h = f.getsize("A")[1]
-    font = {
-        "font": f,
-        "width": sum([f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
-        "height": h,
-        "margin": h + style.get("line-spacing", 1.0) * h
-    }
-    h = foot_f.getsize("A")[1]
-    font_f = {
-        "font": foot_f,
-        "width": sum([foot_f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
-        "height": h,
-        "margin": h + style.get("line-spacing", 1.0) * h
-    }
-    box_w = int(style["img_width"] - left_margin - right_margin)
-    lines = wrap_text(maintext, box_w, f)
-    foot_lines = wrap_text(footertext, box_w, foot_f)
-    # calculate height of main and footer text
-    footer_h = 0.0
-    main_h = 0.0
-    for line in foot_lines:
-        footer_h += font_f["margin"]
-    for line in lines:
-        main_h += font["margin"]
-    box_h = main_h + footer_h + 2 * font["margin"] + font_f["margin"]
+
+    # calculate font size
+    size = max_font_size
+
+    max_box_h = height - top_margin - down_margin
+    box_h = 2 * max_box_h
+    while box_h > max_box_h and size > min_font_size:
+        f = ImageFont.truetype(font_1, size)
+        foot_f = ImageFont.truetype(font_foot, int(size * style["footer_size"]))
+
+        h = f.getsize("A")[1]
+        font = {
+            "font": f,
+            "width": sum([f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
+            "height": h,
+            "margin": h + style["line-spacing"] * h
+        }
+        h = foot_f.getsize("A")[1]
+        font_f = {
+            "font": foot_f,
+            "width": sum([foot_f.getsize(elm)[0] for elm in sample]) / (len(sample) * 1.0),
+            "height": h,
+            "margin": h + style["line-spacing"] * h
+        }
+        box_w = int(style["img_width"] - left_margin - right_margin)
+        lines = wrap_text(maintext, box_w, f)
+        foot_lines = wrap_text(footertext, box_w, foot_f)
+        # calculate height of main and footer text
+        footer_h = 0.0
+        main_h = 0.0
+        for line in foot_lines:
+            footer_h += font_f["margin"]
+        for line in lines:
+            main_h += font["margin"]
+        box_h = main_h + footer_h + font_f["margin"] / 2
+        size -= 1
+
     # print(len(lines))
-    pad = font["height"] * style.get("line-spacing", 1.0)
+    pad = font["margin"]
     current_h = int(style["img_height"] + top_margin - down_margin - box_h) / 2
     for line in lines:
         w, h = f.getsize(line)
@@ -146,11 +153,11 @@ def do_process(param):
             draw.text((left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         else:
             draw.text((width - w - right_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
-        current_h += h + pad
+        current_h += pad
         # img.save(settings["output_directory"] + "/" + name)
 
-    pad = font_f["height"] * style.get("line-spacing", 1.0)
-    current_h += pad
+    pad = font_f["margin"]
+    current_h += pad / 2
     for line in foot_lines:
         w, h = foot_f.getsize(line)
         if style["alignment"] == "center":
@@ -161,7 +168,7 @@ def do_process(param):
         else:
             draw.text((width - w - right_margin, current_h), line, font=foot_f,
                       fill=style["fontfooter"]["font-color"])
-        current_h += h + pad
+        current_h += pad
     img.save(settings["output_directory"] + "/" + name)
 
 
