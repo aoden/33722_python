@@ -22,6 +22,7 @@ class QuoteMaker:
                                   db=self.settings["db"]["database"])
         self.cur = self.db.cursor(MySQLdb.cursors.DictCursor)
         self.query = self.settings["db"]["query"]
+        self.update = self.settings["db"]["update"]
         self.styles = self.settings["styles"]
         self.pattern = re.compile(r"[\w']+|[ \-.,!?;]")
         self.url_friendly_pattern = re.compile('[\W]+')
@@ -33,6 +34,7 @@ class QuoteMaker:
         for style in self.styles:
             make_sure_path_exists(self.settings["output_directory"] + "/" + style["folder"])
             for row in data:
+                self.cur.execute(self.update + str(row["postid"]))
                 tuple = (row, style, self.settings, self.url_friendly_pattern)
                 params.append(tuple)
         p = Pool(20)
