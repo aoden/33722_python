@@ -155,13 +155,18 @@ def do_process(param):
     for line in lines:
         w, h = f.getsize(line)
         if style["alignment"] == "center":
-            draw.rectangle((left_margin, current_h), (0, 0), fill=style["text_background_color"])
+            draw.rectangle(
+                (((width - w) / 2, current_h), ((width - w) / 2 + get_with_of_line(line, f), current_h + pad)),
+                fill=str(style["text_background_color"]))
             draw.text(((width - w) / 2, current_h), line, font=f, fill=style["font1"]["font-color"])
         elif style["alignment"] == "left":
-            draw.rectangle((0, 0), (0, 0), fill=style["text_background_color"])
+            draw.rectangle(((left_margin, current_h), (left_margin + get_with_of_line(line, f), current_h + pad)),
+                           fill=str(style["text_background_color"]))
             draw.text((left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         else:
-            draw.rectangle((0, 0), (0, 0), fill=style["text_background_color"])
+            draw.rectangle(((width - w - right_margin, current_h),
+                            (width - w - right_margin + get_with_of_line(line, f), current_h + pad)),
+                           fill=str(style["text_background_color"]))
             draw.text((width - w - right_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         current_h += pad
         # img.save(settings["output_directory"] + "/" + name)
@@ -184,6 +189,23 @@ def do_process(param):
 
 def count_letters(word):
     return len(word) - word.count(' ')
+
+
+def get_with_of_line(text, font):
+    text_lines = []
+    text_line = []
+    text = text.replace('\n', ' [br] ')
+    words = text.split()
+    font_size = font.getsize(text)
+
+    for word in words:
+        if word == '[br]':
+            text_lines.append(' '.join(text_line))
+            text_line = []
+            continue
+        text_line.append(word)
+    w, h = font.getsize(' '.join(text_line))
+    return w
 
 
 def wrap_text(text, width, font):

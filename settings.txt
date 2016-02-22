@@ -7,7 +7,7 @@
            "database": "likesuccess",
            "port": 3306,
 
-   		"query": "SELECT quotes.ID as postid, quotes.quote as maintext, `authors`.author as footertext FROM quotes INNER JOIN `authors` ON `authors`.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT 10",
+   		"query": "SELECT quotes.ID as postid, quotes.quote as maintext, `authors`.author as footertext FROM quotes INNER JOIN `authors` ON `authors`.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT 2",
            "update": "update quotes set imagesCreated_temp=1 where ID="
        },
     "output_directory": "output",
@@ -16,7 +16,7 @@
 	"filename": "%postid%.png",
     "styles": [
  	{
- 	        "text_background_color" : "#FF3366"
+ 	        "text_background_color" : "#FF3366",
             "img_width": 900,
             "img_height": 700,
             "case": "upper",
@@ -54,7 +54,7 @@
         },
 
  	{
- 	        "text_background_color" : "#FF3366"
+ 	        "text_background_color" : "#FF3366",
             "img_width": 1600,
             "img_height": 900,
             "max_font_size": 100,
@@ -94,7 +94,7 @@
 		
 
  	{
- 	        "text_background_color" : "#FF3366"
+ 	        "text_background_color" : "#FF3366",
             "img_width": 700,
             "img_height": 800,
             "max_font_size": 100,
