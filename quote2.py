@@ -16,6 +16,8 @@ class QuoteMaker:
 
         with open("settings.txt") as data_file:
             self.settings = json.load(data_file)
+        with open("wordlist.txt") as data_file:
+            self.word_list = json.load(data_file)
         self.db = MySQLdb.connect(host=self.settings["db"]["host"],
                                   user=self.settings["db"]["username"],
                                   passwd=self.settings["db"]["password"],
