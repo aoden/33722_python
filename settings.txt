@@ -1,21 +1,22 @@
 {
-    "db": {
+   "db": {
 
-		"host": "188.121.44.179",
-        "username": "LSpython",
-        "password": "Lstemp#",
-        "database": "LSpython",
-        "port": 3306,		
-				
-		"query": "select q.id as postid,quote as maintext,author as footertext from quotes q inner join authors a where q.author_id=a.id ORDER BY postid LIMIT 50",
-        "update": "update quotes set imagesCreated=1 where ID="
-    },
+   	"host": "likesuccess.db.12550652.hostedresource.com",
+           "username": "likesuccess",
+           "password": "Wordpress1@",
+           "database": "likesuccess",
+           "port": 3306,
+
+   		"query": "SELECT quotes.ID as postid, quotes.quote as maintext, `authors`.author as footertext FROM quotes INNER JOIN `authors` ON `authors`.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT 10",
+           "update": "update quotes set imagesCreated_temp=1 where ID="
+       },
     "output_directory": "output",
     "fonts_directory": "fonts/",
     "filename": "%maintext%-%footertext%-%postid%.png",
 	"filename": "%postid%.png",
     "styles": [
  	{
+ 	        "text_background_color" : "#FF3366"
             "img_width": 900,
             "img_height": 700,
             "case": "upper",
@@ -53,6 +54,7 @@
         },
 
  	{
+ 	        "text_background_color" : "#FF3366"
             "img_width": 1600,
             "img_height": 900,
             "max_font_size": 100,
@@ -92,6 +94,7 @@
 		
 
  	{
+ 	        "text_background_color" : "#FF3366"
             "img_width": 700,
             "img_height": 800,
             "max_font_size": 100,

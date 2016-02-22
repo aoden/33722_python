@@ -1,5 +1,5 @@
 import json
-from multiprocessing.pool import ThreadPool, Pool
+from multiprocessing.pool import ThreadPool
 import re
 import string
 import errno
@@ -31,13 +31,18 @@ class QuoteMaker:
         params = []
         self.cur.execute(self.query)
         data = self.cur.fetchall()
+        count = 0
+        for row in data:
+            self.cur.execute(self.update + str(row["postid"]))
+            count += 1
+            print(str(count) + " " + "post_id: " + str(row["postid"]))
         for style in self.styles:
             make_sure_path_exists(self.settings["output_directory"] + "/" + style["folder"])
             for row in data:
-                self.cur.execute(self.update + str(row["postid"]))
+                # self.cur.execute(self.update + str(row["postid"]))
                 tuple = (row, style, self.settings, self.url_friendly_pattern)
                 params.append(tuple)
-        p = Pool(20)
+        p = ThreadPool(20)
         p.map(do_process, params)
 
 
@@ -150,10 +155,13 @@ def do_process(param):
     for line in lines:
         w, h = f.getsize(line)
         if style["alignment"] == "center":
+            draw.rectangle((left_margin, current_h), (0, 0), fill=style["text_background_color"])
             draw.text(((width - w) / 2, current_h), line, font=f, fill=style["font1"]["font-color"])
         elif style["alignment"] == "left":
+            draw.rectangle((0, 0), (0, 0), fill=style["text_background_color"])
             draw.text((left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         else:
+            draw.rectangle((0, 0), (0, 0), fill=style["text_background_color"])
             draw.text((width - w - right_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
         current_h += pad
         # img.save(settings["output_directory"] + "/" + name)
