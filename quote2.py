@@ -54,7 +54,6 @@ def make_sure_path_exists(path):
 
 def do_process(param):
     row, style, settings, pattern, word_list = param[0], param[1], param[2], param[3], param[4]
-    sample = None
     if "case" in style:
         if style["case"] == "upper":
             maintext = str.upper(row["maintext"])
@@ -247,7 +246,6 @@ def wrap_text(text, width, font):
     text_line = []
     text = text.replace('\n', ' [br] ')
     words = text.split()
-    font_size = font.getsize(text)
 
     for word in words:
         if word == '[br]':
