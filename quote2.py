@@ -42,8 +42,8 @@ class QuoteMaker:
             make_sure_path_exists(self.settings["output_directory"] + "/" + style["folder"])
             for row in data:
                 # self.cur.execute(self.update + str(row["postid"]))
-                tuple = (row, style, self.settings, self.url_friendly_pattern)
-                params.append(tuple)
+                param_tuple = (row, style, self.settings, self.url_friendly_pattern, self.word_list["words"])
+                params.append(param_tuple)
         p = ThreadPool(20)
         p.map(do_process, params)
 
@@ -57,7 +57,7 @@ def make_sure_path_exists(path):
 
 
 def do_process(param):
-    row, style, settings, pattern = param[0], param[1], param[2], param[3]
+    row, style, settings, pattern, word_list = param[0], param[1], param[2], param[3], param[4]
     sample = None
     if "case" in style:
         if style["case"] == "upper":
@@ -90,11 +90,14 @@ def do_process(param):
               (style["watermark"]["offset_x"],
                style["watermark"]["offset_y"]),
               mask=water_mark)
+
     draw = ImageDraw.Draw(img)
     max_font_size = style["max_font_size"]
     min_font_size = style["min_font_size"]
     font_1 = settings["fonts_directory"] + style["font1"]["font-family"]
+    font_1_color = style["font1"]["font-color"]
     font_2 = settings["fonts_directory"] + style["font2"]["font-family"]
+    font_2_color = style["font2"]["font-color"]
     font_foot = settings["fonts_directory"] + style.get("fontfooter", style["font1"])["font-family"]
 
     left_margin = style["left-margin"]
@@ -122,6 +125,7 @@ def do_process(param):
     box_h = 2 * max_box_h
     while box_h > max_box_h and size > min_font_size:
         f = ImageFont.truetype(font_1, size)
+        f2 = ImageFont.truetype(font_2, size)
         foot_f = ImageFont.truetype(font_foot, int(size * style["footer_size"]))
 
         h = f.getsize("A")[1]
@@ -157,19 +161,18 @@ def do_process(param):
     for line in lines:
         w, h = f.getsize(line)
         if style["alignment"] == "center":
-            draw.rectangle(
-                (((width - w) / 2, current_h), ((width - w) / 2 + get_with_of_line(line, f), current_h + pad)),
-                fill=str(style["text_background_color"]))
-            draw.text(((width - w) / 2, current_h), line, font=f, fill=style["font1"]["font-color"])
+            draw_string((width - w) / 2, current_h, line, draw, f, font_1_color, f2, font_2_color, word_list)
         elif style["alignment"] == "left":
-            draw.rectangle(((left_margin, current_h), (left_margin + get_with_of_line(line, f), current_h + pad)),
-                           fill=str(style["text_background_color"]))
-            draw.text((left_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
+            # draw.rectangle(((left_margin, current_h), (left_margin + get_with_of_line(line, f), current_h + pad)),
+            #                fill=str(style["text_background_color"]))
+            # draw.text((left_margin, current_h), line, font=f, fill=font_1_color)
+            draw_string(left_margin / 2, current_h, line, draw, f, font_1_color, f2, font_2_color, word_list)
         else:
-            draw.rectangle(((width - w - right_margin, current_h),
-                            (width - w - right_margin + get_with_of_line(line, f), current_h + pad)),
-                           fill=str(style["text_background_color"]))
-            draw.text((width - w - right_margin, current_h), line, font=f, fill=style["font1"]["font-color"])
+            # draw.rectangle(((width - w - right_margin, current_h),
+            #                 (width - w - right_margin + get_with_of_line(line, f), current_h + pad)),
+            #                fill=str(style["text_background_color"]))
+            # draw.text((width - w - right_margin, current_h), line, font=f, fill=font_1_color)
+            draw_string(width - w - right_margin, current_h, line, draw, f, font_1_color, f2, font_2_color, word_list)
         current_h += pad
         # img.save(settings["output_directory"] + "/" + name)
 
@@ -187,6 +190,34 @@ def do_process(param):
                       fill=style["fontfooter"]["font-color"])
         current_h += pad
     img.save(settings["output_directory"] + "/" + name)
+
+
+def draw_string(x, y, line, draw, font_1, font_1_color, font_2, font_2_color, word_list):
+    # old code for drawing text background, wrote before moving to this method
+    # draw.rectangle(
+    #     (((width - w) / 2, current_h), ((width - w) / 2 + get_with_of_line(line, f), current_h + pad)),
+    #     fill=str(style["text_background_color"]))
+    tokens = tokenize(line, word_list, font_1, font_1_color, font_2, font_2_color)
+    count = 0
+    offset = 0
+    for token in tokens:
+        if count < len(tokens) - 1:
+            token.word += " "
+        width = get_with_of_line(token.word, token.font)
+        draw.text((x, y), line, font=token.font, fill=token.color)
+        offset += width
+        count += 1
+        # draw.text(((width - w) / 2, current_h), line, font=f, fill=font_1_color)
+
+
+def tokenize(line, word_list, font_1, font_1_color, font_2, font_2_color):
+    result = []
+    for word in line.split(" "):
+        if word.lower() in word_list:
+            result.append(CustomWord(word, font_2, font_2_color))
+        else:
+            result.append(CustomWord(word, font_1, font_1_color))
+    return result
 
 
 def count_letters(word):
@@ -240,6 +271,14 @@ def main():
     print("Writing images...")
     p.write()
     print("Done!")
+
+
+class CustomWord:
+    def __init__(self, word, font, color):
+        self.word = word
+        self.font = font
+        self.color = color
+        pass
 
 
 if __name__ == "__main__":

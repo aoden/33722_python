@@ -8,7 +8,7 @@
            "port": 3306,
 
    		"query": "SELECT quotes.ID as postid, quotes.quote as maintext, `authors`.author as footertext FROM quotes INNER JOIN `authors` ON `authors`.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT 2",
-           "update": "update quotes set imagesCreated_temp=1 where ID="
+           "update": "update quotes set imagesCreated_temp=0 where ID="
        },
     "output_directory": "output",
     "fonts_directory": "fonts/",
@@ -29,7 +29,7 @@
             },
             "font2": {
                 "font-family": "LUZRO.TTF",
-                "font-color": "#ffffff"
+                "font-color": "#FF3366"
             },
             "fontfooter": {
                 "font-family": "LUZRO.TTF",
@@ -66,7 +66,7 @@
             },
             "font2": {
                 "font-family": "LUZRO.TTF",
-                "font-color": "#ffffff"
+                "font-color": "#FF3366"
             },
             "fontfooter": {
                 "font-family": "LUZRO.TTF",
@@ -106,7 +106,7 @@
             },
             "font2": {
                 "font-family": "LUZRO.TTF",
-                "font-color": "#ffffff"
+                "font-color": "#FF3366"
             },
             "fontfooter": {
                 "font-family": "LUZRO.TTF",
