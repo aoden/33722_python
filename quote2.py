@@ -33,11 +33,6 @@ class QuoteMaker:
         params = []
         self.cur.execute(self.query)
         data = self.cur.fetchall()
-        count = 0
-        for row in data:
-            self.cur.execute(self.update + str(row["postid"]))
-            count += 1
-            print(str(count) + " " + "post_id: " + str(row["postid"]))
         for style in self.styles:
             make_sure_path_exists(self.settings["output_directory"] + "/" + style["folder"])
             for row in data:
@@ -46,6 +41,7 @@ class QuoteMaker:
                 params.append(param_tuple)
         p = ThreadPool(20)
         p.map(do_process, params)
+        self.cur.execute(self.update)
 
 
 def make_sure_path_exists(path):
@@ -82,10 +78,10 @@ def do_process(param):
     name = style["folder"] + "/" + reduce(lambda x, y: x.replace(y, lookup[y]), lookup,
                                           settings["filename"])
     img = Image.new('RGB', (width, height), style["background-color"])
-    water_mark = Image.open(style["watermark"]["file"])
+    water_mark = Image.open(settings["location"] + style["watermark"]["file"])
     water_mark.resize((style["watermark"]["width"], style["watermark"]["height"]))
     if "background-image" in style:
-        img.paste(Image.open(style["background-image"]), (0, 0))
+        img.paste(Image.open(settings["location"] + style["background-image"]), (0, 0))
     img.paste(water_mark,
               (style["watermark"]["offset_x"],
                style["watermark"]["offset_y"]),
@@ -94,11 +90,12 @@ def do_process(param):
     draw = ImageDraw.Draw(img)
     max_font_size = style["max_font_size"]
     min_font_size = style["min_font_size"]
-    font_1 = settings["fonts_directory"] + style["font1"]["font-family"]
+    font_1 = settings["location"] + settings["fonts_directory"] + style["font1"]["font-family"]
     font_1_color = style["font1"]["font-color"]
-    font_2 = settings["fonts_directory"] + style["font2"]["font-family"]
+    font_2 = settings["location"] + settings["fonts_directory"] + style["font2"]["font-family"]
     font_2_color = style["font2"]["font-color"]
-    font_foot = settings["fonts_directory"] + style.get("fontfooter", style["font1"])["font-family"]
+    font_foot = settings["location"] + settings["fonts_directory"] + style.get("fontfooter", style["font1"])[
+        "font-family"]
 
     left_margin = style["left-margin"]
     right_margin = style["right-margin"]
@@ -189,7 +186,7 @@ def do_process(param):
             draw.text((width - w - right_margin, current_h), line, font=foot_f,
                       fill=style["fontfooter"]["font-color"])
         current_h += pad
-    img.save(settings["output_directory"] + "/" + name)
+    img.save(settings["location"] + settings["output_directory"] + "/" + name)
 
 
 def draw_string(x, y, line, draw, font_1, font_1_color, font_2, font_2_color, word_list):
@@ -202,9 +199,11 @@ def draw_string(x, y, line, draw, font_1, font_1_color, font_2, font_2_color, wo
     offset = 0
     for token in tokens:
         if count < len(tokens) - 1:
-            token.word += " "
-        width = get_with_of_line(token.word, token.font)
-        draw.text((x, y), line, font=token.font, fill=token.color)
+            width = get_with_of_line(token.word, token.font) + get_with_of_line(" ", token.font)
+            draw.text((x + offset, y), token.word + " ", font=token.font, fill=token.color)
+        else:
+            width = get_with_of_line(token.word, token.font)
+            draw.text((x + offset, y), token.word, font=token.font, fill=token.color)
         offset += width
         count += 1
         # draw.text(((width - w) / 2, current_h), line, font=f, fill=font_1_color)
@@ -225,6 +224,8 @@ def count_letters(word):
 
 
 def get_with_of_line(text, font):
+    if text == " ":
+        return font.getsize(' ')[0]
     text_lines = []
     text_line = []
     text = text.replace('\n', ' [br] ')
