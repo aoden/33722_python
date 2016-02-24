@@ -1,5 +1,5 @@
 import json
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import ThreadPool, Pool
 import re
 import string
 import errno
@@ -25,13 +25,14 @@ class QuoteMaker:
         self.cur = self.db.cursor(MySQLdb.cursors.DictCursor)
         self.query = self.settings["db"]["query"]
         self.update = self.settings["db"]["update"]
+        self.limit = self.settings["db"]["MaxQuotesProcess"]
         self.styles = self.settings["styles"]
         self.pattern = re.compile(r"[\w']+|[ \-.,!?;]")
         self.url_friendly_pattern = re.compile('[\W]+')
 
     def write(self):
         params = []
-        self.cur.execute(self.query)
+        self.cur.execute(self.query.format(str(self.limit)))
         data = self.cur.fetchall()
         for style in self.styles:
             make_sure_path_exists(self.settings["output_directory"] + "/" + style["folder"])
@@ -39,9 +40,9 @@ class QuoteMaker:
                 # self.cur.execute(self.update + str(row["postid"]))
                 param_tuple = (row, style, self.settings, self.url_friendly_pattern, self.word_list["words"])
                 params.append(param_tuple)
-        p = ThreadPool(20)
+        p = Pool(20)
         p.map(do_process, params)
-        self.cur.execute(self.update)
+        self.cur.execute(self.update.format(str(self.limit)))
 
 
 def make_sure_path_exists(path):

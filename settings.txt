@@ -5,9 +5,9 @@
            "password": "Wordpress1@",
            "database": "likesuccess",
            "port": 3306,
-
-   		"query": "SELECT quotes.ID as postid, quotes.quote as maintext, `authors`.author as footertext FROM quotes INNER JOIN `authors` ON `authors`.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT 100",
-           "update": "update quotes, (SELECT quotes.ID FROM quotes INNER JOIN authors ON authors.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT 100) as temp  SET quotes.imagesCreated_temp=1 WHERE quotes.ID = temp.ID"
+        "MaxQuotesProcess": 4,
+   		"query": "SELECT quotes.ID as postid, quotes.quote as maintext, `authors`.author as footertext FROM quotes INNER JOIN `authors` ON `authors`.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT {}",
+           "update": "update quotes, (SELECT quotes.ID FROM quotes INNER JOIN authors ON authors.ID = quotes.author_id WHERE quotes.imagesCreated_temp = 0 LIMIT {}) as temp  SET quotes.imagesCreated_temp=1 WHERE quotes.ID = temp.ID"
        },
     "location": "",
     "output_directory": "output",
